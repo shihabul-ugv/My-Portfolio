@@ -1,0 +1,75 @@
+# ==============================================================================
+# ROBOTS.TXT — Strict AI Scraper & Crawler Protection
+# Portfolio of Md. Shihabul Islam (https://shihabulislam.com)
+# ==============================================================================
+
+# 1. ALLOW STANDARD SEARCH ENGINES (FOR RECRUITER & GOOGLE SEARCH DISCOVERY)
+User-agent: Googlebot
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+
+User-agent: Bingbot
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+
+# 2. BLOCK ALL AI TRAINING CRAWLERS & AUTOMATED AI CLONING BOTS
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ChatGPT-User
+Disallow: /
+
+User-agent: ClaudeBot
+Disallow: /
+
+User-agent: Claude-Web
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
+User-agent: PerplexityBot
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: Bytespider
+Disallow: /
+
+User-agent: Applebot-Extended
+Disallow: /
+
+User-agent: Diffbot
+Disallow: /
+
+User-agent: FacebookBot
+Disallow: /
+
+User-agent: Meta-ExternalAgent
+Disallow: /
+
+User-agent: cohere-ai
+Disallow: /
+
+User-agent: Omgilibot
+Disallow: /
+
+User-agent: YouBot
+Disallow: /
+
+User-agent: Scrapy
+Disallow: /
+
+User-agent: Amazonbot
+Disallow: /
+
+# 3. GLOBAL FALLBACK — PROTECT ADMIN & API
+User-agent: *
+Disallow: /admin/
+Disallow: /api/

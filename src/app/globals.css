@@ -79,3 +79,13 @@ body {
   0%, 100% { transform: scale(1); opacity: 1; }
   50% { transform: scale(1.04); opacity: 0.85; }
 }
+
+
+/* Anti-copy & Image Guard */
+img, picture, svg {
+  -webkit-user-drag: none;
+  -khtml-user-drag: none;
+  -moz-user-drag: none;
+  -o-user-drag: none;
+  user-drag: none;
+}
