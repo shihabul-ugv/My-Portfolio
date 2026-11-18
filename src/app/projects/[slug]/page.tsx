@@ -182,6 +182,22 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
                   return <hr key={pIdx} className="border-t border-zinc-200 my-8" />;
                 }
 
+                // Markdown Image support
+                const imgMatch = trimmed.match(/^!\[(.*?)\]\((.*?)\)$/);
+                if (imgMatch) {
+                  return (
+                    <div key={pIdx} className="my-10 relative w-full aspect-[16/9] border-4 border-zinc-900 shadow-[8px_8px_0px_0px_rgba(24,24,27,1)] overflow-hidden bg-white">
+                      <Image
+                        src={imgMatch[2]}
+                        alt={imgMatch[1]}
+                        fill
+                        className="object-contain"
+                        sizes="(max-width: 1024px) 100vw, 1200px"
+                      />
+                    </div>
+                  );
+                }
+
                 // H3 Header
                 if (trimmed.startsWith('### ')) {
                   return (
