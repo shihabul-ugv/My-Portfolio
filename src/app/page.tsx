@@ -43,7 +43,11 @@ export default function Home() {
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {
-          setProjects(data.slice(0, 4));
+          const initial = getInitialProjects().filter(p => p.published && p.slug !== "smartpark-ai-parking-management");
+          const dbSlugs = new Set(data.map((p: any) => p.slug));
+          const missingInitial = initial.filter(p => !dbSlugs.has(p.slug));
+          const merged = [...missingInitial, ...data].filter(p => p.slug !== "smartpark-ai-parking-management");
+          setProjects(merged.slice(0, 4));
         }
       })
       .catch(console.error);

@@ -17,8 +17,12 @@ export default function ProjectsPage() {
     fetch(`/api/projects?published=true&t=${Date.now()}`, { cache: "no-store" })
       .then((res) => res.json())
       .then((data) => {
-        if (Array.isArray(data) && data.length > 0) {
-          setProjects(data);
+        if (Array.isArray(data)) {
+          const initial = getInitialProjects().filter((p: any) => p.published && p.slug !== "smartpark-ai-parking-management");
+          const dbSlugs = new Set(data.map((p: any) => p.slug));
+          const missingInitial = initial.filter(p => !dbSlugs.has(p.slug));
+          const merged = [...missingInitial, ...data].filter(p => p.slug !== "smartpark-ai-parking-management");
+          setProjects(merged);
         }
       })
       .catch(console.error)

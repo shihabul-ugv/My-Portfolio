@@ -54,13 +54,13 @@ async function main() {
     console.log('Seeded profile.');
   }
 
-  // 3. Seed Projects (Only seed if database has 0 projects, so user deletions are never reverted)
-  const existingProjects = await prisma.project.count();
-  if (existingProjects === 0 && Array.isArray(projects)) {
+  // 3. Seed Projects (Upsert all initial projects so new ones like SOLEA are always added)
+  if (Array.isArray(projects)) {
     for (const pr of projects) {
-      await prisma.project.create({
-        data: {
-          id: pr.id,
+      if (pr.slug === 'smartpark-ai-parking-management') continue;
+      await prisma.project.upsert({
+        where: { id: pr.id },
+        update: {
           title: pr.title,
           slug: pr.slug,
           description: pr.description,
@@ -73,11 +73,24 @@ async function main() {
           caseStudy: pr.caseStudy,
           published: Boolean(pr.published),
         },
+        create: {
+          id: pr.id,
+          title: pr.title,
+          slug: pr.slug,
+          description: pr.description,
+          thumbnail: pr.thumbnail,
+          role: pr.role,
+          timeline: pr.timeline,
+          problem: pr.problem,
+          solution: pr.solution,
+          externalLink: pr.externalLink,
+          caseStudy: pr.caseStudy,
+          published: Boolean(pr.published),
+          createdAt: pr.createdAt ? new Date(pr.createdAt) : undefined,
+        },
       });
     }
-    console.log(`Seeded ${projects.length} initial projects.`);
-  } else {
-    console.log(`Database already has ${existingProjects} projects. Skipping project seed.`);
+    console.log(`Synced ${projects.length} initial projects.`);
   }
 
   // 4. Seed Experience

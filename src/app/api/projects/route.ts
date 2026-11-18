@@ -2,6 +2,7 @@ import { isAuthenticated } from "@/lib/check-auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
+import { getInitialProjects } from "@/lib/initial-data";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -11,8 +12,6 @@ const noCacheHeaders = {
   "CDN-Cache-Control": "no-store",
   "Vercel-CDN-Cache-Control": "no-store",
 };
-
-import { getInitialProjects } from "@/lib/initial-data";
 
 export async function GET(req: NextRequest) {
   let publishedOnly = false;
@@ -24,54 +23,70 @@ export async function GET(req: NextRequest) {
       ? { published: true, slug: { not: "smartpark-ai-parking-management" } } 
       : { slug: { not: "smartpark-ai-parking-management" } };
 
-    let projects = await prisma.project.findMany({
+    let projects: any[] = await prisma.project.findMany({
       where: whereClause,
       orderBy: { createdAt: "desc" }
     });
 
-    if (projects.length === 0) {
-      const initialProjects = getInitialProjects();
-      if (initialProjects.length > 0) {
-        try {
-          for (const pr of initialProjects) {
-            await prisma.project.upsert({
-              where: { id: pr.id },
-              update: {},
-              create: {
-                id: pr.id,
-                title: pr.title,
-                slug: pr.slug,
-                description: pr.description,
-                thumbnail: pr.thumbnail,
-                role: pr.role,
-                timeline: pr.timeline,
-                problem: pr.problem,
-                solution: pr.solution,
-                externalLink: pr.externalLink,
-                caseStudy: pr.caseStudy,
-                published: Boolean(pr.published),
-              }
-            });
-          }
-          projects = await prisma.project.findMany({
-            where: whereClause,
-            orderBy: { createdAt: "desc" }
-          });
-        } catch (seedErr) {
-          console.error("Auto-seed error:", seedErr);
-        }
-      }
+    const initialProjects = getInitialProjects().filter(p => p.slug !== "smartpark-ai-parking-management");
+    const existingSlugs = new Set(projects.map((p: any) => p.slug));
+    const missing = initialProjects.filter(p => !existingSlugs.has(p.slug));
 
-      if (projects.length === 0) {
-        const fallback = publishedOnly ? initialProjects.filter(p => p.published) : initialProjects;
-        return NextResponse.json(fallback, { headers: noCacheHeaders });
+    if (missing.length > 0) {
+      try {
+        for (const pr of missing) {
+          await prisma.project.upsert({
+            where: { id: pr.id },
+            update: {
+              title: pr.title,
+              slug: pr.slug,
+              description: pr.description,
+              thumbnail: pr.thumbnail,
+              role: pr.role,
+              timeline: pr.timeline,
+              problem: pr.problem,
+              solution: pr.solution,
+              externalLink: pr.externalLink,
+              caseStudy: pr.caseStudy,
+              published: Boolean(pr.published),
+            },
+            create: {
+              id: pr.id,
+              title: pr.title,
+              slug: pr.slug,
+              description: pr.description,
+              thumbnail: pr.thumbnail,
+              role: pr.role,
+              timeline: pr.timeline,
+              problem: pr.problem,
+              solution: pr.solution,
+              externalLink: pr.externalLink,
+              caseStudy: pr.caseStudy,
+              published: Boolean(pr.published),
+              createdAt: pr.createdAt ? new Date(pr.createdAt) : undefined,
+            }
+          });
+        }
+        projects = await prisma.project.findMany({
+          where: whereClause,
+          orderBy: { createdAt: "desc" }
+        });
+      } catch (syncErr) {
+        console.error("Auto-sync missing projects error:", syncErr);
+        const missingToAdd = publishedOnly ? missing.filter(p => p.published) : missing;
+        projects = [...missingToAdd, ...projects];
       }
+    }
+
+    if (projects.length === 0) {
+      const fallback = publishedOnly ? initialProjects.filter(p => p.published) : initialProjects;
+      return NextResponse.json(fallback, { headers: noCacheHeaders });
     }
 
     return NextResponse.json(projects, { headers: noCacheHeaders });
   } catch (error) {
     console.error("Projects GET error:", error);
-    const initialProjects = getInitialProjects();
+    const initialProjects = getInitialProjects().filter(p => p.slug !== "smartpark-ai-parking-management");
     const fallback = publishedOnly ? initialProjects.filter(p => p.published) : initialProjects;
     return NextResponse.json(fallback, { headers: noCacheHeaders });
   }
