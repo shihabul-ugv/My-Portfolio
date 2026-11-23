@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
 
     let projects: any[] = await prisma.project.findMany({
       where: whereClause,
-      orderBy: { createdAt: "desc" }
+      orderBy: [{ order: "asc" }, { createdAt: "desc" }]
     });
 
     const initialProjects = getInitialProjects().filter(p => p.slug !== "smartpark-ai-parking-management");
@@ -49,6 +49,7 @@ export async function GET(req: NextRequest) {
               externalLink: pr.externalLink,
               caseStudy: pr.caseStudy,
               published: Boolean(pr.published),
+              order: pr.order !== undefined ? Number(pr.order) : 0,
             },
             create: {
               id: pr.id,
@@ -63,24 +64,25 @@ export async function GET(req: NextRequest) {
               externalLink: pr.externalLink,
               caseStudy: pr.caseStudy,
               published: Boolean(pr.published),
+              order: pr.order !== undefined ? Number(pr.order) : 0,
               createdAt: pr.createdAt ? new Date(pr.createdAt) : undefined,
             }
           });
         }
         projects = await prisma.project.findMany({
           where: whereClause,
-          orderBy: { createdAt: "desc" }
+          orderBy: [{ order: "asc" }, { createdAt: "desc" }]
         });
       } catch (syncErr) {
         console.error("Auto-sync missing projects error:", syncErr);
         const missingToAdd = publishedOnly ? missing.filter(p => p.published) : missing;
-        projects = [...missingToAdd, ...projects];
+        projects = [...missingToAdd, ...projects].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
       }
     }
 
     if (projects.length === 0) {
       const fallback = publishedOnly ? initialProjects.filter(p => p.published) : initialProjects;
-      return NextResponse.json(fallback, { headers: noCacheHeaders });
+      return NextResponse.json(fallback.sort((a, b) => (a.order ?? 0) - (b.order ?? 0)), { headers: noCacheHeaders });
     }
 
     return NextResponse.json(projects, { headers: noCacheHeaders });
@@ -88,7 +90,7 @@ export async function GET(req: NextRequest) {
     console.error("Projects GET error:", error);
     const initialProjects = getInitialProjects().filter(p => p.slug !== "smartpark-ai-parking-management");
     const fallback = publishedOnly ? initialProjects.filter(p => p.published) : initialProjects;
-    return NextResponse.json(fallback, { headers: noCacheHeaders });
+    return NextResponse.json(fallback.sort((a, b) => (a.order ?? 0) - (b.order ?? 0)), { headers: noCacheHeaders });
   }
 }
 
@@ -104,7 +106,8 @@ export async function POST(req: NextRequest) {
     const { 
       title, slug, description, thumbnail, 
       role, timeline, problem, solution, 
-      externalLink, caseStudy, published 
+      externalLink, caseStudy, published,
+      order
     } = body;
 
     const project = await prisma.project.create({
@@ -120,6 +123,7 @@ export async function POST(req: NextRequest) {
         externalLink: externalLink || null,
         caseStudy: caseStudy || null,
         published: Boolean(published),
+        order: order !== undefined ? Number(order) : 0,
       }
     });
 

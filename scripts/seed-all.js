@@ -72,6 +72,7 @@ async function main() {
           externalLink: pr.externalLink,
           caseStudy: pr.caseStudy,
           published: Boolean(pr.published),
+          order: pr.order !== undefined ? Number(pr.order) : 0,
         },
         create: {
           id: pr.id,
@@ -86,6 +87,7 @@ async function main() {
           externalLink: pr.externalLink,
           caseStudy: pr.caseStudy,
           published: Boolean(pr.published),
+          order: pr.order !== undefined ? Number(pr.order) : 0,
           createdAt: pr.createdAt ? new Date(pr.createdAt) : undefined,
         },
       });

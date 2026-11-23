@@ -68,6 +68,7 @@ export async function PATCH(
         externalLink: body.externalLink,
         caseStudy: body.caseStudy,
         published: body.published,
+        order: body.order !== undefined ? Number(body.order) : undefined,
       },
     });
 

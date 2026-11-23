@@ -21,7 +21,9 @@ export default function ProjectsPage() {
           const initial = getInitialProjects().filter((p: any) => p.published && p.slug !== "smartpark-ai-parking-management");
           const dbSlugs = new Set(data.map((p: any) => p.slug));
           const missingInitial = initial.filter(p => !dbSlugs.has(p.slug));
-          const merged = [...missingInitial, ...data].filter(p => p.slug !== "smartpark-ai-parking-management");
+          const merged = [...missingInitial, ...data]
+            .filter(p => p.slug !== "smartpark-ai-parking-management")
+            .sort((a: any, b: any) => (a.order ?? 0) - (b.order ?? 0));
           setProjects(merged);
         }
       })

@@ -24,7 +24,7 @@ import { CERTIFICATES } from "@/lib/certificates";
 
 export default function Home() {
   const [projects, setProjects] = useState<any[]>(() => {
-    return getInitialProjects().filter(p => p.published).slice(0, 4);
+    return getInitialProjects().filter(p => p.published).slice(0, 3);
   });
   const [profile, setProfile] = useState<any>(() => getInitialProfile() || {});
   const [skills, setSkills] = useState<any[]>(() => getInitialSkills());
@@ -46,8 +46,10 @@ export default function Home() {
           const initial = getInitialProjects().filter(p => p.published && p.slug !== "smartpark-ai-parking-management");
           const dbSlugs = new Set(data.map((p: any) => p.slug));
           const missingInitial = initial.filter(p => !dbSlugs.has(p.slug));
-          const merged = [...missingInitial, ...data].filter(p => p.slug !== "smartpark-ai-parking-management");
-          setProjects(merged.slice(0, 4));
+          const merged = [...missingInitial, ...data]
+            .filter(p => p.slug !== "smartpark-ai-parking-management")
+            .sort((a: any, b: any) => (a.order ?? 0) - (b.order ?? 0));
+          setProjects(merged.slice(0, 3));
         }
       })
       .catch(console.error);
