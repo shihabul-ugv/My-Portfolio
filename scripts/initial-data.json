@@ -3,14 +3,14 @@
     {
       "id": "cmt44nsr60000el6dzcra5s6m",
       "email": "admin@example.com",
-      "password": "$2b$10$Unll/CD1p77Bl1wAPMLLgeRouk3UVI2XAmVCD/8fKc14orgNbaChm",
+      "password": "$2b$10$wfd7PCzC/8C1pJlWVSERauyMpkcK/QqeEhdR7oyeH4kKcVzxz8jhy",
       "createdAt": "2026-08-22T08:39:51.378Z",
       "updatedAt": "2026-09-25T08:35:46.322Z"
     },
     {
       "id": "cmugphicp0001nz2v7bi9fb1w",
       "email": "shihabulislam.ugv@gmail.com",
-      "password": "$2b$10$Unll/CD1p77Bl1wAPMLLgeRouk3UVI2XAmVCD/8fKc14orgNbaChm",
+      "password": "$2b$10$wfd7PCzC/8C1pJlWVSERauyMpkcK/QqeEhdR7oyeH4kKcVzxz8jhy",
       "createdAt": "2026-09-25T08:35:46.346Z",
       "updatedAt": "2026-09-25T08:35:46.346Z"
     }
